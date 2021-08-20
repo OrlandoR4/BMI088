@@ -3,8 +3,19 @@
 #include "BMI088.h"
 
 //BMI088_ACC
-#define writeToAcc(reg, data) Wire.beginTransmission(acc_address); Wire.write(reg); Wire.write(data); Wire.endTransmission();
-#define requestFromAcc(reg, count) Wire.beginTransmission(acc_address); Wire.write(reg); Wire.endTransmission(); Wire.requestFrom(acc_address, count);
+uint8_t BMI088_ACC::writeToAcc(uint8_t reg, uint8_t data){
+    Wire.beginTransmission(acc_address);
+    Wire.write(reg);
+    Wire.write(data);
+    return Wire.endTransmission();
+}
+uint8_t BMI088_ACC::requestFromAcc(uint8_t reg, uint8_t count){
+    Wire.beginTransmission(acc_address); 
+    Wire.write(reg); 
+    uint8_t err = Wire.endTransmission(); 
+    Wire.requestFrom(acc_address, count);
+    return err;
+}
 
 bool BMI088_ACC::begin(){
     Wire.begin();
@@ -39,8 +50,8 @@ bool BMI088_ACC::begin(){
     return true;
 }
 
-void BMI088_ACC::accConfig(uint8_t acc_bwp, uint8_t acc_odr, uint8_t acc_range){
-    uint8_t configByte = (acc_bwp << 4) | (acc_odr);
+void BMI088_ACC::accConfig(uint8_t acc_osr, uint8_t acc_odr, uint8_t acc_range){
+    uint8_t configByte = (acc_osr << 4) | (acc_odr);
     writeToAcc(0x40, configByte); //Write to ACC_CONF address
 
     writeToAcc(0x41, acc_range); //Write to ACC_RANGE address
@@ -60,8 +71,19 @@ void BMI088_ACC::doAcc(){
 }
 
 //BMI088_GYRO
-#define writeToGyro(reg, data) Wire.beginTransmission(gyro_address); Wire.write(reg); Wire.write(data); Wire.endTransmission();
-#define requestFromGyro(reg, count) Wire.beginTransmission(gyro_address); Wire.write(reg); Wire.endTransmission(); Wire.requestFrom(gyro_address, count);
+uint8_t BMI088_GYRO::writeToGyro(uint8_t reg, uint8_t data){
+    Wire.beginTransmission(gyro_address);
+    Wire.write(reg);
+    Wire.write(data);
+    return Wire.endTransmission();
+}
+uint8_t BMI088_GYRO::requestFromGyro(uint8_t reg, uint8_t count){
+    Wire.beginTransmission(gyro_address); 
+    Wire.write(reg); 
+    uint8_t err = Wire.endTransmission(); 
+    Wire.requestFrom(gyro_address, count);
+    return err;
+}
 
 bool BMI088_GYRO::begin(){
     Wire.begin();
@@ -117,7 +139,26 @@ void BMI088_GYRO::doGyro(){
     int16_t y_read = (Wire.read() | (Wire.read() << 8));
     int16_t z_read = (Wire.read() | (Wire.read() << 8));
 
-    x = float(x_read) * gyro_rad_conversion;
-    y = float(y_read) * gyro_rad_conversion;
-    z = float(z_read) * gyro_rad_conversion;
+    x = float(x_read) * gyro_rad_conversion - x_off + 0.07f;
+    y = float(y_read) * gyro_rad_conversion - y_off + -0.05f;
+    z = float(z_read) * gyro_rad_conversion - z_off + 0.1f;
+}
+
+bool BMI088_GYRO::calibrateGyro(uint32_t calculate_samples){
+    if(sampleCount < calculate_samples){
+        if(sqrtf(x*x + y*y + z*z) < 0.2f){
+            sampleCount++;
+            pre_x += x; pre_y += y; pre_z += z;
+        }
+        return (gyroCal = false);
+    }else{
+        x_off = pre_x/sampleCount; y_off = pre_y/sampleCount; z_off = pre_z/sampleCount;
+        return (gyroCal = true);
+    }
+}
+
+void BMI088_GYRO::resetCalibration(){
+    sampleCount = 0;
+    x_off = 0.0f; y_off = 0.0f; z_off = 0.0f;
+    pre_x = 0.0f; pre_y = 0.0f; pre_z = 0.0f;
 }

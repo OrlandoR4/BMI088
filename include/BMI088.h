@@ -45,6 +45,9 @@
 
 class BMI088_ACC{
     private:
+        uint8_t writeToAcc(uint8_t reg, uint8_t data);
+        uint8_t requestFromAcc(uint8_t reg, uint8_t count);
+
         float acc_mss_conversion;
     public:
         uint8_t acc_address;
@@ -57,18 +60,30 @@ class BMI088_ACC{
         
         bool begin();
 
-        void accConfig(uint8_t acc_bwp, uint8_t acc_odr, uint8_t acc_range);
+        void accConfig(uint8_t acc_osr, uint8_t acc_odr, uint8_t acc_range);
         
         void doAcc();
 };
 
 class BMI088_GYRO{
     private:
+        uint8_t writeToGyro(uint8_t reg, uint8_t data);
+        uint8_t requestFromGyro(uint8_t reg, uint8_t count);
+
         float gyro_rad_conversion;
+
+        //Calibration
+        uint32_t sampleCount;
+        float pre_x;
+        float pre_y;
+        float pre_z;     
     public:
         uint8_t gyro_address;
 
         float x, y, z;
+        float x_off, y_off, z_off;
+
+        bool gyroCal;
 
         BMI088_GYRO(uint8_t anAddress){
             gyro_address = anAddress;
@@ -79,6 +94,10 @@ class BMI088_GYRO{
         void gyroConfig(uint8_t gyro_odr, uint8_t gyro_range);
         
         void doGyro();
+
+        bool calibrateGyro(uint32_t calculate_samples);
+
+        void resetCalibration();
 };
 
 #endif
