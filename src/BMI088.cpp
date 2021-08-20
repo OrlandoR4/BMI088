@@ -139,9 +139,9 @@ void BMI088_GYRO::doGyro(){
     int16_t y_read = (Wire.read() | (Wire.read() << 8));
     int16_t z_read = (Wire.read() | (Wire.read() << 8));
 
-    x = float(x_read) * gyro_rad_conversion - x_off + 0.07f;
-    y = float(y_read) * gyro_rad_conversion - y_off + -0.05f;
-    z = float(z_read) * gyro_rad_conversion - z_off + 0.1f;
+    x = float(x_read) * gyro_rad_conversion - x_off;
+    y = float(y_read) * gyro_rad_conversion - y_off;
+    z = float(z_read) * gyro_rad_conversion - z_off;
 }
 
 bool BMI088_GYRO::calibrateGyro(uint32_t calculate_samples){
