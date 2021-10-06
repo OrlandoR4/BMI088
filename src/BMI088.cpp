@@ -152,7 +152,7 @@ bool BMI088_GYRO::calibrateGyro(uint32_t calculate_samples){
         }
         return (gyroCal = false);
     }else{
-        x_off = pre_x/sampleCount; y_off = pre_y/sampleCount; z_off = pre_z/sampleCount;
+        x_off = pre_x/float(sampleCount); y_off = pre_y/float(sampleCount); z_off = pre_z/float(sampleCount);
         return (gyroCal = true);
     }
 }
