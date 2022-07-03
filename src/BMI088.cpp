@@ -38,7 +38,7 @@ bool BMI088_ACC::begin(){
 
     delay(50); //Wait for power mode change
 
-    accConfig(ACC_OSR_2, ACC_ODR_400hz, ACC_RNG_24G);
+    accConfig(BMI088_ACC_OSR_2, BMI088_ACC_ODR_400hz, BMI088_ACC_RNG_24G);
 
     requestFromAcc(0x00, 1); 
     uint8_t readID = Wire.read();
@@ -102,7 +102,7 @@ bool BMI088_GYRO::begin(){
 
     if(chipID_ERR){ return false; } //Error checking
 
-    gyroConfig(GYRO_ODR_400hz, GYRO_RNG_1000);
+    gyroConfig(BMI088_GYRO_ODR_400hz, BMI088_GYRO_RNG_1000);
 
     return true;
 }
@@ -115,19 +115,19 @@ void BMI088_GYRO::gyroConfig(uint8_t gyro_odr, uint8_t gyro_range){
     const float DEGTORAD = 3.14159f / 180.0f;
 
     switch(gyro_range){
-        case GYRO_RNG_2000:
+        case BMI088_GYRO_RNG_2000:
             gyro_rad_conversion = 1.0f/16.384f * DEGTORAD;
             break;
-        case GYRO_RNG_1000:
+        case BMI088_GYRO_RNG_1000:
             gyro_rad_conversion = 1.0f/32.768f * DEGTORAD;
             break;
-        case GYRO_RNG_500:
+        case BMI088_GYRO_RNG_500:
             gyro_rad_conversion = 1.0f/65.536f * DEGTORAD;
             break;
-        case GYRO_RNG_250:
+        case BMI088_GYRO_RNG_250:
             gyro_rad_conversion = 1.0f/131.072f * DEGTORAD;
             break;
-        case GYRO_RNG_125:
+        case BMI088_GYRO_RNG_125:
             gyro_rad_conversion = 1.0f/262.144f * DEGTORAD;
             break;
     }   
